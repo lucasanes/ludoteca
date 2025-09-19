@@ -36,15 +36,55 @@ namespace Ludoteca
 
     public void AddMember(ref int nextMemberId)
     {
-      Console.Write("Nome do membro: ");
-      string name = Console.ReadLine()?.Trim() ?? "";
-      Console.Write("Matrícula: ");
-      string registration = Console.ReadLine()?.Trim() ?? "";
+      try
+      {
+        Console.Write("Nome do membro: ");
+        string name = Console.ReadLine()?.Trim() ?? "";
+        Console.Write("Matrícula: ");
+        string registration = Console.ReadLine()?.Trim() ?? "";
 
-      var member = new Member(nextMemberId++, name, registration);
-      Members.Add(member);
+        if (Members.Any(m => m.Registration.Equals(registration, StringComparison.OrdinalIgnoreCase)))
+        {
+          throw new ArgumentException("Já existe um membro com esta matrícula.");
+        }
 
-      Console.WriteLine("Membro cadastrado com sucesso.");
+        var member = new Member(nextMemberId++, name, registration);
+        Members.Add(member);
+
+        Logger.LogInfo($"Membro cadastrado: ID={member.Id}, Nome={member.Name}, Matrícula={member.Registration}");
+        Console.WriteLine("Membro cadastrado com sucesso.");
+      }
+      catch (Exception ex)
+      {
+        Logger.LogError("Erro ao cadastrar membro", ex);
+        throw;
+      }
+    }
+    
+    public void ValidateAllMembers()
+    {
+      Logger.LogInfo("Iniciando validação de consistência dos membros...");
+      
+      foreach (var member in Members)
+      {
+        member.ValidateConsistency();
+      }
+      
+      var duplicateRegistrations = Members
+        .GroupBy(m => m.Registration.ToLower())
+        .Where(g => g.Count() > 1)
+        .ToList();
+        
+      foreach (var duplicate in duplicateRegistrations)
+      {
+        Logger.LogError($"INCONSISTÊNCIA: Matrícula duplicada encontrada: {duplicate.Key}");
+        foreach (var member in duplicate)
+        {
+          Logger.LogError($"  - Membro ID {member.Id}: {member.Name}");
+        }
+      }
+      
+      Logger.LogInfo($"Validação de membros concluída. Total de membros: {Members.Count}");
     }
   }
 }

@@ -14,7 +14,7 @@ namespace Ludoteca
     public int NextLoanId = 1;
     
     private MemberControl MemberControl = null!;
-    private GameLibrary GameLibrary = null!;
+    private GameControl GameLibrary = null!;
     private LoanControl LoanControl = null!;
 
     static void Main(string[] args)
@@ -25,11 +25,15 @@ namespace Ludoteca
     
     public void Run()
     {
-      MemberControl = new MemberControl();
-      GameLibrary = new GameLibrary();
-      LoanControl = new LoanControl();
+      try
+      {
+        Logger.LogInfo("Iniciando aplicação Ludoteca");
+        
+        MemberControl = new MemberControl();
+        GameLibrary = new GameControl();
+        LoanControl = new LoanControl();
 
-      Load();
+        Load();
 
       bool running = true;
       while (running)
@@ -46,6 +50,9 @@ namespace Ludoteca
         Console.WriteLine("  2.2 Listar jogos");
         Console.WriteLine("  2.3 Listar empréstimos");
         Console.WriteLine("3 Salvar");
+        Console.WriteLine("4 Relatórios");
+        Console.WriteLine("  4.1 Gerar relatório");
+        Console.WriteLine("  4.2 Verificar consistência");
         Console.WriteLine("0 Sair");
         Console.Write("Opção: ");
 
@@ -80,6 +87,14 @@ namespace Ludoteca
               Save();
               Console.WriteLine("Dados salvos com sucesso.");
               break;
+            case "4.1":
+              Logger.GenerateReport(MemberControl, GameLibrary, LoanControl);
+              Console.WriteLine("Relatório gerado com sucesso em relatorio.txt");
+              break;
+            case "4.2":
+              Logger.AssertConsistency(MemberControl, GameLibrary, LoanControl);
+              Console.WriteLine("Verificação de consistência concluída. Verifique debug.log para detalhes.");
+              break;
             case "0":
               Save();
               running = false;
@@ -93,14 +108,17 @@ namespace Ludoteca
         catch (ArgumentException ex)
         {
           Console.WriteLine($"Erro de argumento: {ex.Message}");
+          Logger.LogError($"ArgumentException na opção {option}: {ex.Message}", ex);
         }
         catch (InvalidOperationException ex)
         {
           Console.WriteLine($"Operação inválida: {ex.Message}");
+          Logger.LogError($"InvalidOperationException na opção {option}: {ex.Message}", ex);
         }
         catch (Exception ex)
         {
           Console.WriteLine($"Erro inesperado: {ex.Message}");
+          Logger.LogError($"Exception inesperada na opção {option}: {ex.Message}", ex);
         }
 
         if (running)
@@ -109,65 +127,98 @@ namespace Ludoteca
           Console.ReadKey();
         }
       }
+      
+      Logger.LogInfo("Encerrando aplicação Ludoteca");
+      }
+      catch (Exception ex)
+      {
+        Logger.LogError("Erro crítico na aplicação", ex);
+        Console.WriteLine($"Erro crítico: {ex.Message}");
+        Console.WriteLine("Verifique debug.log para mais detalhes.");
+      }
     }
 
     private void Save()
     {
-      if (!Directory.Exists(JsonDir))
-        Directory.CreateDirectory(JsonDir);
-
-      var dados = new
+      try
       {
-        members = MemberControl.Members,
-        games = GameLibrary.Games,
-        loans = LoanControl.Loans,
-        nextMemberId = this.NextMemberId,
-        nextGameId = this.NextGameId,
-        nextLoanId = this.NextLoanId,
-      };
+        if (!Directory.Exists(JsonDir))
+          Directory.CreateDirectory(JsonDir);
 
-      string json = JsonSerializer.Serialize(dados, new JsonSerializerOptions { WriteIndented = true });
-      File.WriteAllText(Path.Combine(JsonDir, JsonFile), json);
+        var dados = new
+        {
+          members = MemberControl.Members,
+          games = GameLibrary.Games,
+          loans = LoanControl.Loans,
+          nextMemberId = this.NextMemberId,
+          nextGameId = this.NextGameId,
+          nextLoanId = this.NextLoanId,
+        };
+
+        string json = JsonSerializer.Serialize(dados, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(Path.Combine(JsonDir, JsonFile), json);
+        
+        Logger.LogInfo("Dados salvos com sucesso");
+      }
+      catch (Exception ex)
+      {
+        Logger.LogError("Erro ao salvar dados", ex);
+        throw;
+      }
     }
 
     private void Load()
     {
-      string path = Path.Combine(JsonDir, JsonFile);
-      if (!File.Exists(path))
-        return;
+      try
+      {
+        string path = Path.Combine(JsonDir, JsonFile);
+        if (!File.Exists(path))
+        {
+          Logger.LogInfo("Arquivo de dados não encontrado. Iniciando com dados vazios.");
+          return;
+        }
 
-      string json = File.ReadAllText(path);
-      using JsonDocument document = JsonDocument.Parse(json);
-      JsonElement root = document.RootElement;
+        string json = File.ReadAllText(path);
+        using JsonDocument document = JsonDocument.Parse(json);
+        JsonElement root = document.RootElement;
 
-      if (root.TryGetProperty("members", out JsonElement membersElement))
-      {
-        MemberControl.Members = JsonSerializer.Deserialize<List<Member>>(membersElement.GetRawText()) ?? [];
-      }
-      
-      if (root.TryGetProperty("games", out JsonElement gamesElement))
-      {
-        GameLibrary.Games = JsonSerializer.Deserialize<List<Game>>(gamesElement.GetRawText()) ?? [];
-      }
-      
-      if (root.TryGetProperty("loans", out JsonElement loansElement))
-      {
-        LoanControl.Loans = JsonSerializer.Deserialize<List<Loan>>(loansElement.GetRawText()) ?? [];
-      }
+        if (root.TryGetProperty("members", out JsonElement membersElement))
+        {
+          MemberControl.Members = JsonSerializer.Deserialize<List<Member>>(membersElement.GetRawText()) ?? [];
+        }
+        
+        if (root.TryGetProperty("games", out JsonElement gamesElement))
+        {
+          GameLibrary.Games = JsonSerializer.Deserialize<List<Game>>(gamesElement.GetRawText()) ?? [];
+        }
+        
+        if (root.TryGetProperty("loans", out JsonElement loansElement))
+        {
+          LoanControl.Loans = JsonSerializer.Deserialize<List<Loan>>(loansElement.GetRawText()) ?? [];
+        }
 
-      if (root.TryGetProperty("nextMemberId", out JsonElement memberIdElement))
-      {
-        this.NextMemberId = memberIdElement.GetInt32();
+        if (root.TryGetProperty("nextMemberId", out JsonElement memberIdElement))
+        {
+          this.NextMemberId = memberIdElement.GetInt32();
+        }
+        
+        if (root.TryGetProperty("nextGameId", out JsonElement gameIdElement))
+        {
+          this.NextGameId = gameIdElement.GetInt32();
+        }
+        
+        if (root.TryGetProperty("nextLoanId", out JsonElement loanIdElement))
+        {
+          this.NextLoanId = loanIdElement.GetInt32();
+        }
+        
+        Logger.LogInfo($"Dados carregados com sucesso. Membros: {MemberControl.Members.Count}, Jogos: {GameLibrary.Games.Count}, Empréstimos: {LoanControl.Loans.Count}");
       }
-      
-      if (root.TryGetProperty("nextGameId", out JsonElement gameIdElement))
+      catch (Exception ex)
       {
-        this.NextGameId = gameIdElement.GetInt32();
-      }
-      
-      if (root.TryGetProperty("nextLoanId", out JsonElement loanIdElement))
-      {
-        this.NextLoanId = loanIdElement.GetInt32();
+        Logger.LogError("Erro ao carregar dados", ex);
+        Console.WriteLine($"Erro ao carregar dados: {ex.Message}");
+        Console.WriteLine("Continuando com dados vazios...");
       }
     }
 

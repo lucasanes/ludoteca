@@ -43,23 +43,54 @@ namespace Ludoteca
 
     public void LendGame(MemberControl memberControl, List<Game> Games, ref int nextLoanId)
     {
-      Console.Write("ID do game: ");
-      if (!int.TryParse(Console.ReadLine(), out int gameId))
-        throw new ArgumentException("ID inválido.");
+      try
+      {
+        Console.Write("ID do game: ");
+        if (!int.TryParse(Console.ReadLine(), out int gameId))
+          throw new ArgumentException("ID inválido.");
 
-      Console.Write("ID do membro: ");
-      if (!int.TryParse(Console.ReadLine(), out int membroId))
-        throw new ArgumentException("ID inválido.");
+        Console.Write("ID do membro: ");
+        if (!int.TryParse(Console.ReadLine(), out int membroId))
+          throw new ArgumentException("ID inválido.");
 
-      var game = Games.FirstOrDefault(j => j.Id == gameId) ?? throw new ArgumentException("Game não encontrado.");
-      var membro = memberControl.Members.FirstOrDefault(m => m.Id == membroId) ?? throw new ArgumentException("Membro não encontrado.");
+        var game = Games.FirstOrDefault(j => j.Id == gameId) ?? throw new ArgumentException("Jogo não encontrado.");
+        var membro = memberControl.Members.FirstOrDefault(m => m.Id == membroId) ?? throw new ArgumentException("Membro não encontrado.");
 
-      game.MarkAsLoan();
+        game.MarkAsLoan();
 
-      var loan = new Loan(nextLoanId++, gameId, membroId);
-      Loans.Add(loan);
+        var loan = new Loan(nextLoanId++, gameId, membroId);
+        Loans.Add(loan);
 
-      Console.WriteLine("Game emprestado com sucesso.");
+        Logger.LogInfo($"Empréstimo realizado: ID={loan.Id}, JogoID={gameId}, MembroID={membroId}, Data={loan.LoanDate:dd/MM/yyyy}");
+        Console.WriteLine("Jogo emprestado com sucesso. Devolução em até 7 dias.");
+      }
+      catch (Exception ex)
+      {
+        Logger.LogError("Erro ao realizar empréstimo", ex);
+        throw;
+      }
+    }
+
+    public void ValidateAllLoans(List<Game> games, List<Member> members)
+    {
+      Logger.LogInfo("Iniciando validação de consistência dos empréstimos...");
+      
+      foreach (var loan in Loans)
+      {
+        loan.ValidateConsistency();
+        
+        if (!games.Any(g => g.Id == loan.GameId))
+        {
+          Logger.LogError($"INCONSISTÊNCIA: Empréstimo {loan.Id} referencia jogo inexistente (ID: {loan.GameId})");
+        }
+        
+        if (!members.Any(m => m.Id == loan.MemberId))
+        {
+          Logger.LogError($"INCONSISTÊNCIA: Empréstimo {loan.Id} referencia membro inexistente (ID: {loan.MemberId})");
+        }
+      }
+      
+      Logger.LogInfo($"Validação de empréstimos concluída. Total de empréstimos: {Loans.Count}");
     }
 
   }
