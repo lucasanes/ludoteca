@@ -1,5 +1,11 @@
 # Ludoteca - Sistema de Gerenciamento de Jogos
 
+## Participantes
+
+1. Lucas Abrahão Anes - 06009881
+2. Lucas Gomes Coco - 06011471
+3. Murilo de Melo Mouteira - 06010561
+
 ## Descrição do Projeto
 Sistema de gerenciamento para ludotecas desenvolvido em .NET 9.0, permitindo o controle de membros, jogos e empréstimos com persistência de dados em JSON e relatórios detalhados.
 
