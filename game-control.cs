@@ -15,7 +15,7 @@ namespace Ludoteca
 
     public void AddGame(ref int nextGameId)
     {
-      try
+      try // [AV1-5]
       {
         Console.Write("Nome do game: ");
         string name = Console.ReadLine()?.Trim() ?? "";
@@ -25,7 +25,7 @@ namespace Ludoteca
         Logger.LogInfo($"Jogo cadastrado: ID={game.Id}, Nome={game.Name}");
         Console.WriteLine("Game cadastrado com sucesso.");
       }
-      catch (Exception ex)
+      catch (Exception ex) // [AV1-5]
       {
         Logger.LogError("Erro ao cadastrar jogo", ex);
         throw;
@@ -67,25 +67,38 @@ namespace Ludoteca
         return;
       }
 
+      PrintGamesTableHeader();
+      PrintGamesTableContent();
+      PrintGamesTableFooter();
+    }
+
+    private void PrintGamesTableHeader()
+    {
       Console.WriteLine();
       Console.WriteLine("┌─────┬─────────────────────────────────────┬───────────────┐");
       Console.WriteLine("│ ID  │               Nome                  │ Disponível    │");
       Console.WriteLine("├─────┼─────────────────────────────────────┼───────────────┤");
+    }
 
+    private void PrintGamesTableContent()
+    {
       foreach (Game game in Games)
       {
         string name = game.Name.Length > 35 ? game.Name.Substring(0, 32) + "..." : game.Name;
         string available = game.Available ? "Sim" : "Não";
         Console.WriteLine($"│ {game.Id,-3} │ {name,-35} │ {available,-13} │");
       }
+    }
 
+    private void PrintGamesTableFooter()
+    {
       Console.WriteLine("└─────┴─────────────────────────────────────┴───────────────┘");
       Console.WriteLine();
     }
 
     public void ReturnGame(List<Loan> Loans)
     {
-      try
+      try // [AV1-5]
       {
         Console.Write("ID do empréstimo: ");
         if (!int.TryParse(Console.ReadLine(), out int loanId))
@@ -102,7 +115,7 @@ namespace Ludoteca
         Logger.LogInfo($"Jogo devolvido: EmprestimoID={loanId}, JogoID={loan.GameId}");
         Console.WriteLine("Game devolvido com sucesso.");
       }
-      catch (Exception ex)
+      catch (Exception ex) // [AV1-5]
       {
         Logger.LogError("Erro ao devolver jogo", ex);
         throw;

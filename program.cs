@@ -19,7 +19,7 @@ namespace Ludoteca
 
     static void Main(string[] args)
     {
-      var program = new Program();
+      Program program = new();
       program.Run();
     }
     
@@ -35,100 +35,37 @@ namespace Ludoteca
 
         Load();
 
-      bool running = true;
-      while (running)
-      {
-        Console.Clear();
-        Console.WriteLine("=== LUDOTECA .NET ===");
-        Console.WriteLine("1 Cadastro");
-        Console.WriteLine("  1.1 Cadastrar membro");
-        Console.WriteLine("  1.2 Cadastrar jogo");
-        Console.WriteLine("  1.3 Cadastrar empréstimo");
-        Console.WriteLine("  1.4 Cadastrar devolução");
-        Console.WriteLine("2 Listar");
-        Console.WriteLine("  2.1 Listar membros");
-        Console.WriteLine("  2.2 Listar jogos");
-        Console.WriteLine("  2.3 Listar empréstimos");
-        Console.WriteLine("3 Salvar");
-        Console.WriteLine("4 Relatórios");
-        Console.WriteLine("  4.1 Gerar relatório");
-        Console.WriteLine("  4.2 Verificar consistência");
-        Console.WriteLine("0 Sair");
-        Console.Write("Opção: ");
-
-        string option = Console.ReadLine()?.Trim() ?? "";
-
-        try
+        bool running = true;
+        while (running)
         {
-          switch (option)
+          DisplayMenu();
+          string option = Console.ReadLine()?.Trim() ?? "";
+
+          try
           {
-            case "1.1":
-              MemberControl.AddMember(ref NextMemberId);
-              break;
-            case "1.2":
-              GameLibrary.AddGame(ref NextGameId);
-              break;
-            case "1.3":
-              LoanControl.LendGame(MemberControl, GameLibrary.Games, ref NextLoanId);
-              break;
-            case "1.4":
-              GameLibrary.ReturnGame(LoanControl.Loans);
-              break;
-            case "2.1":
-              MemberControl.ListMembers();
-              break;
-            case "2.2":
-              GameLibrary.ListGames();
-              break;
-            case "2.3":
-              LoanControl.ListLoans(MemberControl, GameLibrary.Games);
-              break;
-            case "3":
-              Save();
-              Console.WriteLine("Dados salvos com sucesso.");
-              break;
-            case "4.1":
-              Logger.GenerateReport(MemberControl, GameLibrary, LoanControl);
-              Console.WriteLine("Relatório gerado com sucesso em relatorio.txt");
-              break;
-            case "4.2":
-              Logger.AssertConsistency(MemberControl, GameLibrary, LoanControl);
-              Console.WriteLine("Verificação de consistência concluída. Verifique debug.log para detalhes.");
-              break;
-            case "0":
-              Save();
-              running = false;
-              break;
-            default:
-              Console.WriteLine("Opção inválida. Tente novamente.");
-              break;
+            running = ProcessMenuOption(option);
+          }
+          catch (ArgumentException ex) // [AV1-5]
+          {
+            HandleException(ex, "Erro de argumento", option);
+          }
+          catch (InvalidOperationException ex) // [AV1-5]
+          {
+            HandleException(ex, "Operação inválida", option);
+          }
+          catch (Exception ex)
+          {
+            HandleException(ex, "Erro inesperado", option);
+          }
+
+          if (running)
+          {
+            Console.WriteLine("Pressione qualquer tecla para continuar...");
+            Console.ReadKey();
           }
         }
-
-        catch (ArgumentException ex)
-        {
-          Console.WriteLine($"Erro de argumento: {ex.Message}");
-          Logger.LogError($"ArgumentException na opção {option}: {ex.Message}", ex);
-        }
-        catch (InvalidOperationException ex)
-        {
-          Console.WriteLine($"Operação inválida: {ex.Message}");
-          Logger.LogError($"InvalidOperationException na opção {option}: {ex.Message}", ex);
-        }
-        catch (Exception ex)
-        {
-          Console.WriteLine($"Erro inesperado: {ex.Message}");
-          Logger.LogError($"Exception inesperada na opção {option}: {ex.Message}", ex);
-        }
-
-        if (running)
-        {
-          Console.WriteLine("Pressione qualquer tecla para continuar...");
-          Console.ReadKey();
-        }
-      }
-      
-      Logger.LogInfo("Encerrando aplicação Ludoteca");
+        
+        Logger.LogInfo("Encerrando aplicação Ludoteca");
       }
       catch (Exception ex)
       {
@@ -138,6 +75,92 @@ namespace Ludoteca
       }
     }
 
+    private void DisplayMenu()
+    {
+      Console.Clear();
+      Console.WriteLine("=== LUDOTECA .NET ===");
+      Console.WriteLine("1 Cadastro");
+      Console.WriteLine("  1.1 Cadastrar membro");
+      Console.WriteLine("  1.2 Cadastrar jogo");
+      Console.WriteLine("  1.3 Cadastrar empréstimo");
+      Console.WriteLine("  1.4 Cadastrar devolução");
+      Console.WriteLine("2 Listar");
+      Console.WriteLine("  2.1 Listar membros");
+      Console.WriteLine("  2.2 Listar jogos");
+      Console.WriteLine("  2.3 Listar empréstimos");
+      Console.WriteLine("3 Salvar");
+      Console.WriteLine("4 Relatórios");
+      Console.WriteLine("  4.1 Gerar relatório");
+      Console.WriteLine("  4.2 Verificar consistência");
+      Console.WriteLine("0 Sair");
+      Console.Write("Opção: ");
+    }
+
+    private bool ProcessMenuOption(string option)
+    {
+      switch (option)
+      {
+        case "1.1": // [AV1-4-CadastrarMembro]
+          MemberControl.AddMember(ref NextMemberId);
+          break;
+        case "1.2": // [AV1-4-CadastrarJogo]
+          GameLibrary.AddGame(ref NextGameId);
+          break;
+        case "1.3": // [AV1-4-CadastrarEmprestimo]
+          LoanControl.LendGame(MemberControl, GameLibrary.Games, ref NextLoanId);
+          break;
+        case "1.4": // [AV1-4-CadastrarDevolucao]
+          GameLibrary.ReturnGame(LoanControl.Loans);
+          break;
+        case "2.1": // [AV1-4-ListarMembros]
+          MemberControl.ListMembers();
+          break;
+        case "2.2": // [AV1-4-ListarJogos]
+          GameLibrary.ListGames();
+          break;
+        case "2.3": // [AV1-4-ListarEmprestimos]
+          LoanControl.ListLoans(MemberControl, GameLibrary.Games);
+          break;
+        case "3": // [AV1-4-Salvar]
+          Save();
+          Console.WriteLine("Dados salvos com sucesso.");
+          break;
+        case "4.1": // [AV1-4-GerarRelatorio]
+          Logger.GenerateReport(MemberControl, GameLibrary, LoanControl);
+          Console.WriteLine("Relatório gerado com sucesso em relatorio.txt");
+          break;
+        case "4.2": // [AV1-4-VerificarConsistencia]
+          VerifyDataConsistency();
+          break;
+        case "0": // [AV1-4-Sair]
+          Save();
+          return false;
+        default:
+          Console.WriteLine("Opção inválida. Tente novamente.");
+          break;
+      }
+      return true;
+    }
+
+    private void HandleException(Exception ex, string errorType, string option)
+    {
+      Console.WriteLine($"{errorType}: {ex.Message}");
+      Logger.LogError($"{ex.GetType().Name} na opção {option}: {ex.Message}", ex);
+    }
+
+    private void VerifyDataConsistency()
+    {
+      Logger.LogInfo("Iniciando verificação de consistência dos dados...");
+      Console.WriteLine("Verificando consistência dos dados...");
+      
+      MemberControl.ValidateAllMembers();
+      GameLibrary.ValidateAllGames();
+      LoanControl.ValidateAllLoans(GameLibrary.Games, MemberControl.Members);
+      
+      Console.WriteLine("Verificação de consistência concluída. Verifique debug.log para detalhes.");
+      Logger.LogInfo("Verificação de consistência concluída.");
+    }
+
     private void Save()
     {
       try
@@ -145,7 +168,7 @@ namespace Ludoteca
         if (!Directory.Exists(JsonDir))
           Directory.CreateDirectory(JsonDir);
 
-        var dados = new
+        object dados = new
         {
           members = MemberControl.Members,
           games = GameLibrary.Games,
@@ -155,8 +178,8 @@ namespace Ludoteca
           nextLoanId = this.NextLoanId,
         };
 
-        string json = JsonSerializer.Serialize(dados, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(Path.Combine(JsonDir, JsonFile), json);
+        string json = JsonSerializer.Serialize(dados, new JsonSerializerOptions { WriteIndented = true }); // [AV1-3]
+        File.WriteAllText(Path.Combine(JsonDir, JsonFile), json); // [AV1-3]
         
         Logger.LogInfo("Dados salvos com sucesso");
       }
@@ -178,38 +201,38 @@ namespace Ludoteca
           return;
         }
 
-        string json = File.ReadAllText(path);
-        using JsonDocument document = JsonDocument.Parse(json);
-        JsonElement root = document.RootElement;
+        string json = File.ReadAllText(path); // [AV1-3]
+        using JsonDocument document = JsonDocument.Parse(json); // [AV1-3]
+        JsonElement root = document.RootElement; // [AV1-3]
 
-        if (root.TryGetProperty("members", out JsonElement membersElement))
+        if (root.TryGetProperty("members", out JsonElement membersElement)) // [AV1-3]
         {
-          MemberControl.Members = JsonSerializer.Deserialize<List<Member>>(membersElement.GetRawText()) ?? [];
+          MemberControl.Members = JsonSerializer.Deserialize<List<Member>>(membersElement.GetRawText()) ?? []; // [AV1-3]
         }
         
-        if (root.TryGetProperty("games", out JsonElement gamesElement))
+        if (root.TryGetProperty("games", out JsonElement gamesElement)) // [AV1-3]
         {
-          GameLibrary.Games = JsonSerializer.Deserialize<List<Game>>(gamesElement.GetRawText()) ?? [];
+          GameLibrary.Games = JsonSerializer.Deserialize<List<Game>>(gamesElement.GetRawText()) ?? []; // [AV1-3]
         }
         
-        if (root.TryGetProperty("loans", out JsonElement loansElement))
+        if (root.TryGetProperty("loans", out JsonElement loansElement)) // [AV1-3]
         {
-          LoanControl.Loans = JsonSerializer.Deserialize<List<Loan>>(loansElement.GetRawText()) ?? [];
+          LoanControl.Loans = JsonSerializer.Deserialize<List<Loan>>(loansElement.GetRawText()) ?? []; // [AV1-3]
         }
 
-        if (root.TryGetProperty("nextMemberId", out JsonElement memberIdElement))
+        if (root.TryGetProperty("nextMemberId", out JsonElement memberIdElement)) // [AV1-3]
         {
-          this.NextMemberId = memberIdElement.GetInt32();
+          this.NextMemberId = memberIdElement.GetInt32(); // [AV1-3]
         }
         
-        if (root.TryGetProperty("nextGameId", out JsonElement gameIdElement))
+        if (root.TryGetProperty("nextGameId", out JsonElement gameIdElement)) // [AV1-3]
         {
-          this.NextGameId = gameIdElement.GetInt32();
+          this.NextGameId = gameIdElement.GetInt32(); // [AV1-3]
         }
         
-        if (root.TryGetProperty("nextLoanId", out JsonElement loanIdElement))
+        if (root.TryGetProperty("nextLoanId", out JsonElement loanIdElement)) // [AV1-3]
         {
-          this.NextLoanId = loanIdElement.GetInt32();
+          this.NextLoanId = loanIdElement.GetInt32(); // [AV1-3]
         }
         
         Logger.LogInfo($"Dados carregados com sucesso. Membros: {MemberControl.Members.Count}, Jogos: {GameLibrary.Games.Count}, Empréstimos: {LoanControl.Loans.Count}");

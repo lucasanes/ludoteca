@@ -18,12 +18,22 @@ namespace Ludoteca
         return;
       }
 
+      PrintLoansTableHeader();
+      PrintLoansTableContent(MemberControl, Games);
+      PrintLoansTableFooter();
+    }
+
+    private void PrintLoansTableHeader()
+    {
       Console.WriteLine();
       Console.WriteLine("┌─────┬──────────────────────┬──────────────────────┬─────────────────┬────────────────┐");
       Console.WriteLine("│ ID  │      Nome do Jogo    │    Nome do Membro    │ Data Empréstimo │ Data Devolução │");
       Console.WriteLine("├─────┼──────────────────────┼──────────────────────┼─────────────────┼────────────────┤");
+    }
 
-      foreach (var loan in Loans)
+    private void PrintLoansTableContent(MemberControl MemberControl, List<Game> Games)
+    {
+      foreach (Loan loan in Loans)
       {
         string? gameName = Games.FirstOrDefault(g => g.Id == loan.GameId)?.Name ?? "N/A";
         string? memberName = MemberControl.Members.FirstOrDefault(m => m.Id == loan.MemberId)?.Name ?? "N/A";
@@ -36,14 +46,17 @@ namespace Ludoteca
 
         Console.WriteLine($"│ {loan.Id,-3} │ {gameName,-20} │ {memberName,-20} │ {loanDate,-15} │ {returnDate,-14} │");
       }
+    }
 
+    private void PrintLoansTableFooter()
+    {
       Console.WriteLine("└─────┴──────────────────────┴──────────────────────┴─────────────────┴────────────────┘");
       Console.WriteLine();
     }
 
     public void LendGame(MemberControl memberControl, List<Game> Games, ref int nextLoanId)
     {
-      try
+      try // [AV1-5]
       {
         Console.Write("ID do game: ");
         if (!int.TryParse(Console.ReadLine(), out int gameId))
@@ -53,18 +66,18 @@ namespace Ludoteca
         if (!int.TryParse(Console.ReadLine(), out int membroId))
           throw new ArgumentException("ID inválido.");
 
-        var game = Games.FirstOrDefault(j => j.Id == gameId) ?? throw new ArgumentException("Jogo não encontrado.");
-        var membro = memberControl.Members.FirstOrDefault(m => m.Id == membroId) ?? throw new ArgumentException("Membro não encontrado.");
+        Game game = Games.FirstOrDefault(j => j.Id == gameId) ?? throw new ArgumentException("Jogo não encontrado.");
+        Member membro = memberControl.Members.FirstOrDefault(m => m.Id == membroId) ?? throw new ArgumentException("Membro não encontrado.");
 
         game.MarkAsLoan();
 
-        var loan = new Loan(nextLoanId++, gameId, membroId);
+        Loan loan = new Loan(nextLoanId++, gameId, membroId);
         Loans.Add(loan);
 
         Logger.LogInfo($"Empréstimo realizado: ID={loan.Id}, JogoID={gameId}, MembroID={membroId}, Data={loan.LoanDate:dd/MM/yyyy}");
         Console.WriteLine("Jogo emprestado com sucesso. Devolução em até 7 dias.");
       }
-      catch (Exception ex)
+      catch (Exception ex) // [AV1-5]
       {
         Logger.LogError("Erro ao realizar empréstimo", ex);
         throw;
@@ -75,7 +88,7 @@ namespace Ludoteca
     {
       Logger.LogInfo("Iniciando validação de consistência dos empréstimos...");
       
-      foreach (var loan in Loans)
+      foreach (Loan loan in Loans)
       {
         loan.ValidateConsistency();
         
