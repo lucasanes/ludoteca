@@ -15,6 +15,8 @@ namespace Ludoteca
     {
       try
       {
+        EnsureDirectoryExists();
+        
         var report = new StringBuilder();
 
         AddReportHeader(report);
