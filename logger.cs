@@ -12,10 +12,20 @@ namespace Ludoteca
     private const string DebugLogFile = Dir + "/debug.log";
     private const string ReportFile = Dir + "/relatorio.txt";
 
+    private static void EnsureDirectoryExists()
+    {
+      if (!Directory.Exists(Dir))
+      {
+        Directory.CreateDirectory(Dir);
+      }
+    }
+
     public static void LogError(string message, Exception? ex = null)
     {
       try
       {
+        EnsureDirectoryExists();
+        
         string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         string logEntry = $"[{timestamp}] ERROR: {message}";
 
@@ -42,6 +52,8 @@ namespace Ludoteca
     {
       try
       {
+        EnsureDirectoryExists();
+        
         string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         string logEntry = $"[{timestamp}] INFO: {message}\n";
 
@@ -57,6 +69,8 @@ namespace Ludoteca
     {
       try
       {
+        EnsureDirectoryExists();
+        
         var report = new StringBuilder();
 
         AddReportHeader(report);
