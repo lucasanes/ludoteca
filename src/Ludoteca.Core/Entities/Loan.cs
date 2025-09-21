@@ -27,7 +27,7 @@ namespace Ludoteca
       MemberId = memberId;
       LoanDate = DateTime.Now;
       ReturnDate = returnDate;
-      
+
     }
 
     public void RegisterReturn()
@@ -37,7 +37,7 @@ namespace Ludoteca
       ReturnDate = DateTime.Now;
       Logger.LogInfo($"Devolução registrada para empréstimo {Id} em {ReturnDate:dd/MM/yyyy HH:mm:ss}");
     }
-    
+
     public void ValidateConsistency()
     {
       if (Id <= 0)

@@ -6,64 +6,10 @@ using System.Linq;
 
 namespace Ludoteca
 {
-  public static class Logger
+  public static class ReportService
   {
     private const string Dir = "data";
-    private const string DebugLogFile = Dir + "/debug.log";
     private const string ReportFile = Dir + "/relatorio.txt";
-
-    private static void EnsureDirectoryExists()
-    {
-      if (!Directory.Exists(Dir))
-      {
-        Directory.CreateDirectory(Dir);
-      }
-    }
-
-    public static void LogError(string message, Exception? ex = null)
-    {
-      try
-      {
-        EnsureDirectoryExists();
-        
-        string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-        string logEntry = $"[{timestamp}] ERROR: {message}";
-
-        if (ex != null)
-        {
-          logEntry += $"\nException: {ex.GetType().Name}: {ex.Message}";
-          if (!string.IsNullOrEmpty(ex.StackTrace))
-          {
-            logEntry += $"\nStackTrace: {ex.StackTrace}";
-          }
-        }
-
-        logEntry += "\n" + new string('-', 50) + "\n";
-
-        File.AppendAllText(DebugLogFile, logEntry, Encoding.UTF8);
-      }
-      catch (Exception logException)
-      {
-        Console.WriteLine($"Erro ao escrever no log: {logException.Message}");
-      }
-    }
-
-    public static void LogInfo(string message)
-    {
-      try
-      {
-        EnsureDirectoryExists();
-        
-        string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-        string logEntry = $"[{timestamp}] INFO: {message}\n";
-
-        File.AppendAllText(DebugLogFile, logEntry, Encoding.UTF8);
-      }
-      catch (Exception logException)
-      {
-        Console.WriteLine($"Erro ao escrever no log: {logException.Message}");
-      }
-    }
 
     public static void GenerateReport(MemberControl memberControl, GameControl gameLibrary, LoanControl loanControl)
     {
@@ -81,12 +27,13 @@ namespace Ludoteca
         GenerateTopReports(report, loanControl, gameLibrary, memberControl);
         AddReportFooter(report);
 
+        EnsureDirectoryExists();
         File.WriteAllText(ReportFile, report.ToString(), Encoding.UTF8);
-        LogInfo($"Relatório gerado com sucesso em {ReportFile}");
+        Logger.LogInfo($"Relatório gerado com sucesso em {ReportFile}");
       }
       catch (Exception ex)
       {
-        LogError("Erro ao gerar relatório", ex);
+        Logger.LogError("Erro ao gerar relatório", ex);
         throw;
       }
     }
@@ -221,6 +168,14 @@ namespace Ludoteca
     {
       report.AppendLine(new string('=', 50));
       report.AppendLine("Fim do relatório");
+    }
+
+    private static void EnsureDirectoryExists()
+    {
+      if (!Directory.Exists(Dir))
+      {
+        Directory.CreateDirectory(Dir);
+      }
     }
   }
 }
