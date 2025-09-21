@@ -12,7 +12,7 @@ namespace Ludoteca
     public int NextMemberId = 1;
     public int NextGameId = 1;
     public int NextLoanId = 1;
-    
+
     private MemberControl MemberControl = null!;
     private GameControl GameLibrary = null!;
     private LoanControl LoanControl = null!;
@@ -22,13 +22,13 @@ namespace Ludoteca
       Program program = new();
       program.Run();
     }
-    
+
     public void Run()
     {
       try
       {
         Logger.LogInfo("Iniciando aplicação Ludoteca");
-        
+
         MemberControl = new MemberControl();
         GameLibrary = new GameControl();
         LoanControl = new LoanControl();
@@ -64,7 +64,7 @@ namespace Ludoteca
             Console.ReadKey();
           }
         }
-        
+
         Logger.LogInfo("Encerrando aplicação Ludoteca");
       }
       catch (Exception ex)
@@ -126,7 +126,7 @@ namespace Ludoteca
           Console.WriteLine("Dados salvos com sucesso.");
           break;
         case "4.1": // [AV1-4-GerarRelatorio]
-          Logger.GenerateReport(MemberControl, GameLibrary, LoanControl);
+          ReportService.GenerateReport(MemberControl, GameLibrary, LoanControl);
           Console.WriteLine("Relatório gerado com sucesso em relatorio.txt");
           break;
         case "4.2": // [AV1-4-VerificarConsistencia]
@@ -152,11 +152,11 @@ namespace Ludoteca
     {
       Logger.LogInfo("Iniciando verificação de consistência dos dados...");
       Console.WriteLine("Verificando consistência dos dados...");
-      
+
       MemberControl.ValidateAllMembers();
       GameLibrary.ValidateAllGames();
       LoanControl.ValidateAllLoans(GameLibrary.Games, MemberControl.Members);
-      
+
       Console.WriteLine("Verificação de consistência concluída. Verifique debug.log para detalhes.");
       Logger.LogInfo("Verificação de consistência concluída.");
     }
@@ -180,7 +180,7 @@ namespace Ludoteca
 
         string json = JsonSerializer.Serialize(dados, new JsonSerializerOptions { WriteIndented = true }); // [AV1-3]
         File.WriteAllText(Path.Combine(JsonDir, JsonFile), json); // [AV1-3]
-        
+
         Logger.LogInfo("Dados salvos com sucesso");
       }
       catch (Exception ex)
@@ -209,12 +209,12 @@ namespace Ludoteca
         {
           MemberControl.Members = JsonSerializer.Deserialize<List<Member>>(membersElement.GetRawText()) ?? []; // [AV1-3]
         }
-        
+
         if (root.TryGetProperty("games", out JsonElement gamesElement)) // [AV1-3]
         {
           GameLibrary.Games = JsonSerializer.Deserialize<List<Game>>(gamesElement.GetRawText()) ?? []; // [AV1-3]
         }
-        
+
         if (root.TryGetProperty("loans", out JsonElement loansElement)) // [AV1-3]
         {
           LoanControl.Loans = JsonSerializer.Deserialize<List<Loan>>(loansElement.GetRawText()) ?? []; // [AV1-3]
@@ -224,17 +224,17 @@ namespace Ludoteca
         {
           this.NextMemberId = memberIdElement.GetInt32(); // [AV1-3]
         }
-        
+
         if (root.TryGetProperty("nextGameId", out JsonElement gameIdElement)) // [AV1-3]
         {
           this.NextGameId = gameIdElement.GetInt32(); // [AV1-3]
         }
-        
+
         if (root.TryGetProperty("nextLoanId", out JsonElement loanIdElement)) // [AV1-3]
         {
           this.NextLoanId = loanIdElement.GetInt32(); // [AV1-3]
         }
-        
+
         Logger.LogInfo($"Dados carregados com sucesso. Membros: {MemberControl.Members.Count}, Jogos: {GameLibrary.Games.Count}, Empréstimos: {LoanControl.Loans.Count}");
       }
       catch (Exception ex)

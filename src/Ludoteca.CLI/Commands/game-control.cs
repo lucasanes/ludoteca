@@ -7,7 +7,7 @@ namespace Ludoteca
 {
   public class GameControl
   {
-    public List<Game> Games { get; set; } = [];
+    public List<Game> Games { get; set; } = new List<Game>();
 
     public GameControl()
     {
@@ -21,7 +21,7 @@ namespace Ludoteca
         string name = Console.ReadLine()?.Trim() ?? "";
         var game = new Game(nextGameId++, name);
         Games.Add(game);
-        
+
         Logger.LogInfo($"Jogo cadastrado: ID={game.Id}, Nome={game.Name}");
         Console.WriteLine("Game cadastrado com sucesso.");
       }
@@ -35,18 +35,18 @@ namespace Ludoteca
     public void ValidateAllGames()
     {
       Logger.LogInfo("Iniciando validação de consistência dos jogos...");
-      
+
       foreach (var game in Games)
       {
         game.ValidateConsistency();
       }
-      
+
       // Verificar duplicatas de nome
       var duplicateNames = Games
         .GroupBy(g => g.Name.ToLower())
         .Where(g => g.Count() > 1)
         .ToList();
-        
+
       foreach (var duplicate in duplicateNames)
       {
         Logger.LogError($"INCONSISTÊNCIA: Nome de jogo duplicado encontrado: {duplicate.Key}");
@@ -55,7 +55,7 @@ namespace Ludoteca
           Logger.LogError($"  - Jogo ID {game.Id}: {game.Name}");
         }
       }
-      
+
       Logger.LogInfo($"Validação de jogos concluída. Total de jogos: {Games.Count}");
     }
 
