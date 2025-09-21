@@ -1,8 +1,6 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Ludoteca
 {
@@ -10,22 +8,11 @@ namespace Ludoteca
   {
     private const string Dir = "data";
     private const string DebugLogFile = Dir + "/debug.log";
-    private const string ReportFile = Dir + "/relatorio.txt";
-
-    private static void EnsureDirectoryExists()
-    {
-      if (!Directory.Exists(Dir))
-      {
-        Directory.CreateDirectory(Dir);
-      }
-    }
 
     public static void LogError(string message, Exception? ex = null)
     {
       try
       {
-        EnsureDirectoryExists();
-        
         string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         string logEntry = $"[{timestamp}] ERROR: {message}";
 
@@ -40,6 +27,7 @@ namespace Ludoteca
 
         logEntry += "\n" + new string('-', 50) + "\n";
 
+        EnsureDirectoryExists();
         File.AppendAllText(DebugLogFile, logEntry, Encoding.UTF8);
       }
       catch (Exception logException)
@@ -52,16 +40,23 @@ namespace Ludoteca
     {
       try
       {
-        EnsureDirectoryExists();
-        
         string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         string logEntry = $"[{timestamp}] INFO: {message}\n";
 
+        EnsureDirectoryExists();
         File.AppendAllText(DebugLogFile, logEntry, Encoding.UTF8);
       }
       catch (Exception logException)
       {
         Console.WriteLine($"Erro ao escrever no log: {logException.Message}");
+      }
+    }
+
+    private static void EnsureDirectoryExists()
+    {
+      if (!Directory.Exists(Dir))
+      {
+        Directory.CreateDirectory(Dir);
       }
     }
   }
