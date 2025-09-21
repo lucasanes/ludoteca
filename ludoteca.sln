@@ -2,7 +2,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ludoteca", "ludoteca.csproj", "{0620AF24-6905-FA0B-B3AC-E9BFE2708382}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ludoteca", "src/Ludoteca.CLI/ludoteca.csproj", "{0620AF24-6905-FA0B-B3AC-E9BFE2708382}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ludoteca.Core", "src/Ludoteca.Core/Ludoteca.Core.csproj", "{B3AC1234-1234-1234-1234-123456789ABC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ludoteca.Infrastructure", "src/Ludoteca.Infrastructure/Ludoteca.Infrastructure.csproj", "{C4BD2345-2345-2345-2345-23456789ABCD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,6 +18,14 @@ Global
 		{0620AF24-6905-FA0B-B3AC-E9BFE2708382}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0620AF24-6905-FA0B-B3AC-E9BFE2708382}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0620AF24-6905-FA0B-B3AC-E9BFE2708382}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3AC1234-1234-1234-1234-123456789ABC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3AC1234-1234-1234-1234-123456789ABC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3AC1234-1234-1234-1234-123456789ABC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3AC1234-1234-1234-1234-123456789ABC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4BD2345-2345-2345-2345-23456789ABCD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4BD2345-2345-2345-2345-23456789ABCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4BD2345-2345-2345-2345-23456789ABCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4BD2345-2345-2345-2345-23456789ABCD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

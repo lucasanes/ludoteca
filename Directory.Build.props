@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup>
+    <!-- Define o projeto CLI como o projeto de startup padrão -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);**/.git/**</DefaultItemExcludes>
+  </PropertyGroup>
+  
+  <!-- Configuração global para todos os projetos -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>
