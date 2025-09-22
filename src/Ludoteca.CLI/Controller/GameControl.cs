@@ -41,7 +41,6 @@ namespace Ludoteca
         game.ValidateConsistency();
       }
 
-      // Verificar duplicatas de nome
       var duplicateNames = Games
         .GroupBy(g => g.Name.ToLower())
         .Where(g => g.Count() > 1)

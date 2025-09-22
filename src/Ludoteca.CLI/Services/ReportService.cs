@@ -32,7 +32,6 @@ namespace Ludoteca
         File.WriteAllText(reportFile, report.ToString(), Encoding.UTF8);
         Logger.LogInfo($"Relatório gerado com sucesso em {reportFile}");
 
-        // Also display the filename to the user
         Console.WriteLine($"Relatório gerado com sucesso em {reportFile}");
       }
       catch (Exception ex)

@@ -47,7 +47,7 @@ namespace Ludoteca
         if (!File.Exists(path))
         {
           Logger.LogInfo("Arquivo de dados não encontrado. Iniciando com dados vazios.");
-          return (1, 1, 1); // Default values
+          return (1, 1, 1);
         }
 
         string json = File.ReadAllText(path);
