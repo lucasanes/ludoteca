@@ -20,7 +20,7 @@ namespace Ludoteca
 
       if (currentDir == null)
       {
-        throw new InvalidOperationException("Could not find project root directory (ludoteca.sln not found)");
+        throw new InvalidOperationException("Não foi possível encontrar o diretório raiz do projeto (arquivo ludoteca.sln não encontrado)");
       }
 
       return currentDir;
