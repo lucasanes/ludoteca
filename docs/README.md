@@ -6,6 +6,10 @@
 2. Lucas Gomes Coco - 06011471
 3. Murilo de Melo Mouteira - 06010561
 
+## Link do Vídeo - AV1
+
+https://youtu.be/nwI1-4F_omk
+
 ## Descrição do Projeto
 Sistema de gerenciamento para ludotecas desenvolvido em .NET 9.0, permitindo o controle de membros, jogos e empréstimos com persistência de dados em JSON e relatórios detalhados. O projeto utiliza uma arquitetura limpa com separação de responsabilidades entre camadas.
 
