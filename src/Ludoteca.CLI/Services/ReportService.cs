@@ -8,15 +8,16 @@ namespace Ludoteca
 {
   public static class ReportService
   {
-    private const string Dir = "data";
-    private const string ReportFile = Dir + "/relatorio.txt";
-
     public static void GenerateReport(MemberControl memberControl, GameControl gameLibrary, LoanControl loanControl)
     {
       try
       {
-        EnsureDirectoryExists();
-        
+        string dataDir = PathUtils.GetDataDirectory();
+        EnsureDirectoryExists(dataDir);
+
+        string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+        string reportFile = Path.Combine(dataDir, $"relatorio_{timestamp}.txt");
+
         var report = new StringBuilder();
 
         AddReportHeader(report);
@@ -27,9 +28,12 @@ namespace Ludoteca
         GenerateTopReports(report, loanControl, gameLibrary, memberControl);
         AddReportFooter(report);
 
-        EnsureDirectoryExists();
-        File.WriteAllText(ReportFile, report.ToString(), Encoding.UTF8);
-        Logger.LogInfo($"Relatório gerado com sucesso em {ReportFile}");
+        EnsureDirectoryExists(dataDir);
+        File.WriteAllText(reportFile, report.ToString(), Encoding.UTF8);
+        Logger.LogInfo($"Relatório gerado com sucesso em {reportFile}");
+
+        // Also display the filename to the user
+        Console.WriteLine($"Relatório gerado com sucesso em {reportFile}");
       }
       catch (Exception ex)
       {
@@ -170,11 +174,11 @@ namespace Ludoteca
       report.AppendLine("Fim do relatório");
     }
 
-    private static void EnsureDirectoryExists()
+    private static void EnsureDirectoryExists(string directory)
     {
-      if (!Directory.Exists(Dir))
+      if (!Directory.Exists(directory))
       {
-        Directory.CreateDirectory(Dir);
+        Directory.CreateDirectory(directory);
       }
     }
   }

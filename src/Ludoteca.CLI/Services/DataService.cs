@@ -6,15 +6,15 @@ namespace Ludoteca
 {
   public class DataService
   {
-    private const string JsonDir = "data";
     private const string JsonFile = "database.json";
 
     public void Save(MemberControl memberControl, GameControl gameControl, LoanControl loanControl, int nextMemberId, int nextGameId, int nextLoanId)
     {
       try
       {
-        if (!Directory.Exists(JsonDir))
-          Directory.CreateDirectory(JsonDir);
+        string dataDir = PathUtils.GetDataDirectory();
+        if (!Directory.Exists(dataDir))
+          Directory.CreateDirectory(dataDir);
 
         object dados = new
         {
@@ -27,7 +27,7 @@ namespace Ludoteca
         };
 
         string json = JsonSerializer.Serialize(dados, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(Path.Combine(JsonDir, JsonFile), json);
+        File.WriteAllText(Path.Combine(dataDir, JsonFile), json);
 
         Logger.LogInfo("Dados salvos com sucesso");
       }
@@ -42,7 +42,8 @@ namespace Ludoteca
     {
       try
       {
-        string path = Path.Combine(JsonDir, JsonFile);
+        string dataDir = PathUtils.GetDataDirectory();
+        string path = Path.Combine(dataDir, JsonFile);
         if (!File.Exists(path))
         {
           Logger.LogInfo("Arquivo de dados não encontrado. Iniciando com dados vazios.");
@@ -96,7 +97,7 @@ namespace Ludoteca
         Logger.LogError("Erro ao carregar dados", ex);
         Console.WriteLine($"Erro ao carregar dados: {ex.Message}");
         Console.WriteLine("Continuando com dados vazios...");
-        return (1, 1, 1); // Default values on error
+        return (1, 1, 1);
       }
     }
   }

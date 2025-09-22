@@ -325,7 +325,6 @@ namespace Ludoteca
           {
             case "1":
               ReportService.GenerateReport(MemberControl, GameLibrary, LoanControl);
-              Console.WriteLine("Relatório gerado com sucesso em relatorio.txt");
               break;
             case "2":
               ConsistencyService.VerifyDataConsistency(MemberControl, GameLibrary, LoanControl);
